@@ -1,0 +1,124 @@
+---
+title: "Tidytutorial"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+## Gentle Introduction To Tidyverse
+
+### Simplest Tutorial ever!!
+
+As I promised you I talk more about tidyverse and other packages this is
+only a begging so don't judge harshly (or do, I don't care anyway).
+
+let's get started, first we need to load the tidyverse library so we can have
+access to all the great functions, if you don't have the tidyverse
+library yet you should install it first by running
+
+```{r}
+# install.packages(tidyverse)
+```
+
+now we need to import the package so we can use it
+
+```{r message=FALSE, warning=FALSE}
+library(tidyverse)
+```
+
+like I said before one of the great things in  R is that it
+has many built in datasets we can choose one to play around with let see
+
+```{r message=FALSE, warning=FALSE}
+?mtcars
+```
+
+when you run this line you will get informations about The mtcars data
+set like where it came from and what each variable means. Now we will
+turn it into tibble which is like a dataframe that has more advantages and really works well with tidyverse packages this is optinal however this is so simple stuff it wont matter 
+
+```{r}
+data <- as_tibble(mtcars)
+data
+```
+
+now let's make use of tidyverse 
+
+```{r}
+data %>% select(mpg, disp, wt, am)
+```
+
+ The select() function works similar to the SQL statement SELECT, 
+ as you can see it's very easy to choose certin columns but this is not
+the true power of tidyverse the %>% is very helpful because now we can
+chain commands together, we can  select some columns and then select
+individual cases given a ceritn condition like for example "show the
+displacement and weight and miles per gallon for all the manual (am ==
+1) cars in the dataset
+
+```{r}
+data %>% select(mpg, disp, wt, am)  %>% filter(am == 1)
+```
+
+we can add even more conditions and more functions let assume for the
+sake of example that there's something called weight displacement ratio
+which is obtained by dividing the displacement of a car by its weight in
+1000 of pounds and we want to do this for the manual cars that has high
+miles per gallon (let's assume that this means > 25) we can do all of
+this just by running :
+
+```{r}
+data %>% mutate(Weight_displacemet_ratio = disp/wt*1000) %>% select(mpg, disp, wt,Weight_displacemet_ratio, am)  %>% filter(mpg > 25, am == 1)
+```
+
+An important thing to remember is that the original data is still as it
+is its not modified so if you check that
+
+```{r}
+data
+```
+this is very helpful because you don't want to create new versions of your dataframe to apply functions to it especially in the first stages of analysis.
+Okay lets do something fun hmm lets do a  very simple analysis by
+plotting very simple boxplot to see if there is difference in mpg in the groups of cars that have a
+different number of cylinders
+
+```{r}
+data = data %>% mutate(Cyl = as.factor(cyl))
+```
+
+```{r}
+box_plot = ggplot(data, aes(x = Cyl, y = mpg)) + geom_boxplot()
+box_plot
+```
+
+Easy eough, but what an ugly graph lets make things more interesting
+
+```{r}
+box_plot = ggplot(data, aes(x = Cyl, y = mpg, fill = Cyl)) + geom_boxplot() + scale_fill_brewer(palette="Set3") + theme_classic()+labs(
+    title = "Fuel Consumtion Categorized By The Number Of Cylinders",
+    subtitle = "(1973-74)",
+    caption = "Data from the 1974 Motor Trend US magazine.",
+    tag = "Figure 1",
+    x = "Number of Cylinders",
+    y = "Fuel economy (mpg)",
+    colour = "Cylinders")
+box_plot
+```
+
+Now let see if there is a relationship between the weight of a car and
+its gas consumtion
+
+```{r}
+sp<-ggplot(data, aes(x=wt, y=mpg, color=Cyl)) + geom_point() + scale_color_manual(values=c("#997777", "#E69F00", "#56B4E9")) + theme_minimal() +labs(
+    title = "Fuel economy declines as weight increases",
+    subtitle = "(1973-74)",
+    caption = "Data from the 1974 Motor Trend US magazine.",
+    tag = "Figure 2",
+    x = "Weight (1000 lbs)",
+    y = "Fuel economy (mpg)",
+    colour = "Gears")
+  
+sp 
+```
+Don't worry if you don't understand some of ggplot commands and options I won't explain it here today I think it deserve its own tutorial The whole point of this tutorial was to wit your apatite to go try this for yourself in future Tuts we will go through more complicated stuff with more realistic data for now I think this is enough for a first tutorial.
